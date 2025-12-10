@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>Omni-Dromenon — Audience</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="audience-mode">
+  <!-- Connection Overlay -->
+  <div id="connection-overlay" class="overlay">
+    <div class="overlay-content">
+      <div class="logo-mark">◉</div>
+      <h1>Omni-Dromenon</h1>
+      <p class="tagline">Shape the performance with your presence</p>
+      <button id="connect-btn" class="primary-btn">
+        <span class="btn-text">Enter Performance</span>
+        <span class="btn-loading hidden">Connecting...</span>
+      </button>
+      <p class="audio-notice">Tap to enable audio and join</p>
+    </div>
+  </div>
+
+  <!-- Main Interface -->
+  <main id="interface" class="hidden">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="session-info">
+        <span class="status-dot connected"></span>
+        <span id="audience-count">0</span> connected
+      </div>
+      <div class="latency-display">
+        <span id="latency-value">--</span>ms
+      </div>
+    </header>
+
+    <!-- Parameter Controls -->
+    <section class="controls-grid">
+      <!-- Mood Control -->
+      <div class="control-card" data-parameter="mood">
+        <div class="control-header">
+          <h3>Mood</h3>
+          <span class="control-value" id="mood-value">50%</span>
+        </div>
+        <div class="control-visual">
+          <div class="gradient-bar mood-gradient">
+            <div class="value-indicator" id="mood-indicator"></div>
+          </div>
+          <div class="touch-area" data-param="mood"></div>
+        </div>
+        <div class="control-labels">
+          <span>Dark</span>
+          <span>Bright</span>
+        </div>
+      </div>
+
+      <!-- Tempo Control -->
+      <div class="control-card" data-parameter="tempo">
+        <div class="control-header">
+          <h3>Tempo</h3>
+          <span class="control-value" id="tempo-value">50%</span>
+        </div>
+        <div class="control-visual">
+          <div class="gradient-bar tempo-gradient">
+            <div class="value-indicator" id="tempo-indicator"></div>
+          </div>
+          <div class="touch-area" data-param="tempo"></div>
+        </div>
+        <div class="control-labels">
+          <span>Slow</span>
+          <span>Fast</span>
+        </div>
+      </div>
+
+      <!-- Intensity Control -->
+      <div class="control-card" data-parameter="intensity">
+        <div class="control-header">
+          <h3>Intensity</h3>
+          <span class="control-value" id="intensity-value">50%</span>
+        </div>
+        <div class="control-visual">
+          <div class="gradient-bar intensity-gradient">
+            <div class="value-indicator" id="intensity-indicator"></div>
+          </div>
+          <div class="touch-area" data-param="intensity"></div>
+        </div>
+        <div class="control-labels">
+          <span>Calm</span>
+          <span>Fierce</span>
+        </div>
+      </div>
+
+      <!-- Density Control -->
+      <div class="control-card" data-parameter="density">
+        <div class="control-header">
+          <h3>Density</h3>
+          <span class="control-value" id="density-value">50%</span>
+        </div>
+        <div class="control-visual">
+          <div class="gradient-bar density-gradient">
+            <div class="value-indicator" id="density-indicator"></div>
+          </div>
+          <div class="touch-area" data-param="density"></div>
+        </div>
+        <div class="control-labels">
+          <span>Sparse</span>
+          <span>Dense</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Audio Visualizer -->
+    <section class="visualizer-section">
+      <canvas id="visualizer" width="300" height="80"></canvas>
+    </section>
+
+    <!-- Collective State Display -->
+    <section class="collective-state">
+      <h4>Collective State</h4>
+      <div class="state-bars">
+        <div class="state-bar-container">
+          <div class="state-bar" id="collective-mood"></div>
+          <span>Mood</span>
+        </div>
+        <div class="state-bar-container">
+          <div class="state-bar" id="collective-tempo"></div>
+          <span>Tempo</span>
+        </div>
+        <div class="state-bar-container">
+          <div class="state-bar" id="collective-intensity"></div>
+          <span>Intensity</span>
+        </div>
+        <div class="state-bar-container">
+          <div class="state-bar" id="collective-density"></div>
+          <span>Density</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  <script src="client.js"></script>
+</body>
+</html>

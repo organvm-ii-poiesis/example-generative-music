@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>Omni-Dromenon — Performer Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* Performer-specific overrides */
+    .performer-mode {
+      --accent-primary: #f59e0b;
+      --accent-secondary: #d97706;
+      --accent-glow: rgba(245, 158, 11, 0.3);
+    }
+    
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: var(--space-lg);
+      min-height: 100vh;
+      padding: var(--space-lg);
+    }
+    
+    @media (max-width: 900px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .main-panel {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+    }
+    
+    .side-panel {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      height: fit-content;
+    }
+    
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-md);
+      border-bottom: 1px solid var(--bg-elevated);
+    }
+    
+    .panel-title {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+    }
+    
+    /* Parameter override controls */
+    .override-section {
+      margin-bottom: var(--space-lg);
+    }
+    
+    .override-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md) 0;
+      border-bottom: 1px solid var(--bg-elevated);
+    }
+    
+    .override-row:last-child {
+      border-bottom: none;
+    }
+    
+    .override-label {
+      width: 80px;
+      font-size: var(--font-size-sm);
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+    
+    .override-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 8px;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-full);
+      outline: none;
+    }
+    
+    .override-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: var(--accent-primary);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    
+    .override-value {
+      width: 50px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    
+    .override-toggle {
+      width: 40px;
+      height: 24px;
+      background: var(--bg-elevated);
+      border: none;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+    }
+    
+    .override-toggle.active {
+      background: var(--accent-primary);
+    }
+    
+    .override-toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    
+    .override-toggle.active::after {
+      transform: translateX(16px);
+    }
+    
+    /* Session controls */
+    .session-controls {
+      display: flex;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+    }
+    
+    .session-btn {
+      flex: 1;
+      min-width: 80px;
+      padding: var(--space-sm) var(--space-md);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-family);
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .session-btn.start { background: var(--success); color: white; }
+    .session-btn.pause { background: var(--warning); color: white; }
+    .session-btn.end { background: var(--error); color: white; }
+    
+    .session-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    /* Stats display */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+    }
+    
+    .stat-card {
+      background: var(--bg-elevated);
+      padding: var(--space-md);
+      border-radius: var(--radius-md);
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: var(--font-size-xl);
+      font-weight: 600;
+      color: var(--accent-primary);
+    }
+    
+    .stat-label {
+      font-size: var(--font-size-sm);
+      color: var(--text-muted);
+      margin-top: var(--space-xs);
+    }
+  </style>
+</head>
+<body class="performer-mode">
+  <div class="dashboard">
+    <!-- Main Panel -->
+    <div class="main-panel">
+      <!-- Header -->
+      <div class="panel-header">
+        <h1 class="panel-title">Performer Dashboard</h1>
+        <div class="session-info">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="connection-status">Disconnected</span>
+        </div>
+      </div>
+      
+      <!-- Override Controls -->
+      <section class="override-section">
+        <h3 style="margin-bottom: var(--space-md); color: var(--text-secondary);">Parameter Overrides</h3>
+        
+        <div class="override-row">
+          <span class="override-label">Mood</span>
+          <input type="range" class="override-slider" id="mood-slider" min="0" max="100" value="50">
+          <span class="override-value" id="mood-override-value">50%</span>
+          <button class="override-toggle" id="mood-toggle" data-param="mood"></button>
+        </div>
+        
+        <div class="override-row">
+          <span class="override-label">Tempo</span>
+          <input type="range" class="override-slider" id="tempo-slider" min="0" max="100" value="50">
+          <span class="override-value" id="tempo-override-value">50%</span>
+          <button class="override-toggle" id="tempo-toggle" data-param="tempo"></button>
+        </div>
+        
+        <div class="override-row">
+          <span class="override-label">Intensity</span>
+          <input type="range" class="override-slider" id="intensity-slider" min="0" max="100" value="50">
+          <span class="override-value" id="intensity-override-value">50%</span>
+          <button class="override-toggle" id="intensity-toggle" data-param="intensity"></button>
+        </div>
+        
+        <div class="override-row">
+          <span class="override-label">Density</span>
+          <input type="range" class="override-slider" id="density-slider" min="0" max="100" value="50">
+          <span class="override-value" id="density-override-value">50%</span>
+          <button class="override-toggle" id="density-toggle" data-param="density"></button>
+        </div>
+      </section>
+      
+      <!-- Session Controls -->
+      <section>
+        <h3 style="margin-bottom: var(--space-md); color: var(--text-secondary);">Session Control</h3>
+        <div class="session-controls">
+          <button class="session-btn start" id="start-btn">Start</button>
+          <button class="session-btn pause" id="pause-btn" disabled>Pause</button>
+          <button class="session-btn end" id="end-btn" disabled>End</button>
+        </div>
+      </section>
+    </div>
+    
+    <!-- Side Panel - Stats -->
+    <div class="side-panel">
+      <h3 style="margin-bottom: var(--space-lg); color: var(--text-secondary);">Live Stats</h3>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="audience-count">0</div>
+          <div class="stat-label">Audience</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="latency-stat">--</div>
+          <div class="stat-label">Latency (ms)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="inputs-sec">0</div>
+          <div class="stat-label">Inputs/sec</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="session-time">00:00</div>
+          <div class="stat-label">Duration</div>
+        </div>
+      </div>
+      
+      <hr style="border: none; border-top: 1px solid var(--bg-elevated); margin: var(--space-lg) 0;">
+      
+      <h4 style="margin-bottom: var(--space-md); color: var(--text-secondary);">Current Values</h4>
+      <div style="display: flex; flex-direction: column; gap: var(--space-sm);">
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-muted);">Mood</span>
+          <span id="current-mood">50%</span>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-muted);">Tempo</span>
+          <span id="current-tempo">50%</span>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-muted);">Intensity</span>
+          <span id="current-intensity">50%</span>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-muted);">Density</span>
+          <span id="current-density">50%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Scripts -->
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+  <script>
+    // Performer Dashboard Client
+    const socket = io(window.location.origin);
+    let sessionStartTime = null;
+    let sessionInterval = null;
+    
+    // DOM Elements
+    const dom = {
+      statusDot: document.getElementById('status-dot'),
+      connectionStatus: document.getElementById('connection-status'),
+      audienceCount: document.getElementById('audience-count'),
+      latencyStat: document.getElementById('latency-stat'),
+      inputsSec: document.getElementById('inputs-sec'),
+      sessionTime: document.getElementById('session-time'),
+      startBtn: document.getElementById('start-btn'),
+      pauseBtn: document.getElementById('pause-btn'),
+      endBtn: document.getElementById('end-btn'),
+    };
+    
+    // Socket events
+    socket.on('connect', () => {
+      dom.statusDot.classList.add('connected');
+      dom.connectionStatus.textContent = 'Connected';
+    });
+    
+    socket.on('disconnect', () => {
+      dom.statusDot.classList.remove('connected');
+      dom.connectionStatus.textContent = 'Disconnected';
+    });
+    
+    socket.on('state:update', (data) => {
+      dom.audienceCount.textContent = data.audienceCount || 0;
+      document.getElementById('current-mood').textContent = Math.round(data.mood * 100) + '%';
+      document.getElementById('current-tempo').textContent = Math.round(data.tempo * 100) + '%';
+      document.getElementById('current-intensity').textContent = Math.round(data.intensity * 100) + '%';
+      document.getElementById('current-density').textContent = Math.round(data.density * 100) + '%';
+    });
+    
+    // Override controls
+    ['mood', 'tempo', 'intensity', 'density'].forEach(param => {
+      const slider = document.getElementById(`${param}-slider`);
+      const valueDisplay = document.getElementById(`${param}-override-value`);
+      const toggle = document.getElementById(`${param}-toggle`);
+      
+      slider.addEventListener('input', (e) => {
+        const value = e.target.value;
+        valueDisplay.textContent = value + '%';
+        
+        if (toggle.classList.contains('active')) {
+          socket.emit('performer:override', {
+            param,
+            value: value / 100,
+            active: true
+          });
+        }
+      });
+      
+      toggle.addEventListener('click', () => {
+        toggle.classList.toggle('active');
+        const active = toggle.classList.contains('active');
+        const value = slider.value / 100;
+        
+        socket.emit('performer:override', {
+          param,
+          value: active ? value : null,
+          active
+        });
+      });
+    });
+    
+    // Session controls
+    dom.startBtn.addEventListener('click', () => {
+      sessionStartTime = Date.now();
+      sessionInterval = setInterval(updateSessionTime, 1000);
+      dom.startBtn.disabled = true;
+      dom.pauseBtn.disabled = false;
+      dom.endBtn.disabled = false;
+    });
+    
+    dom.pauseBtn.addEventListener('click', () => {
+      clearInterval(sessionInterval);
+      dom.pauseBtn.textContent = dom.pauseBtn.textContent === 'Pause' ? 'Resume' : 'Pause';
+    });
+    
+    dom.endBtn.addEventListener('click', () => {
+      clearInterval(sessionInterval);
+      sessionStartTime = null;
+      dom.sessionTime.textContent = '00:00';
+      dom.startBtn.disabled = false;
+      dom.pauseBtn.disabled = true;
+      dom.endBtn.disabled = true;
+    });
+    
+    function updateSessionTime() {
+      if (!sessionStartTime) return;
+      const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+      const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+      const secs = (elapsed % 60).toString().padStart(2, '0');
+      dom.sessionTime.textContent = `${mins}:${secs}`;
+    }
+  </script>
+</body>
+</html>
