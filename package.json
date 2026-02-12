@@ -1,25 +1,35 @@
 {
   "name": "@omni-dromenon-engine/example-generative-music",
-  "version": "0.1.0",
-  "description": "Reference implementation: Audience-controlled generative music",
+  "version": "1.0.0",
+  "description": "Reference implementation: Audience-controlled generative music with recursive sequence generation, OSC bridge, and temporal scheduling",
   "main": "src/server/index.js",
+  "bin": {
+    "example-generative-music": "src/cli.js"
+  },
   "scripts": {
     "start": "node src/server/index.js",
     "dev": "nodemon src/server/index.js",
-    "benchmark": "node tests/benchmark.js"
+    "test": "node --test tests/unit.test.js",
+    "benchmark": "node tests/benchmark.js",
+    "demo": "node src/cli.js demo",
+    "generate": "node src/cli.js generate"
   },
   "keywords": [
     "generative-music",
     "audience-participation",
     "real-time",
     "websocket",
-    "tone-js"
+    "tone-js",
+    "osc",
+    "midi",
+    "recursive-music",
+    "consensus-algorithm"
   ],
   "author": "Anthony Padavano <4444@ivi374iviorf.org>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/omni-dromenon-engine/example-generative-music.git"
+    "url": "git+https://github.com/organvm-ii-poiesis/example-generative-music.git"
   },
   "dependencies": {
     "express": "^4.18.2",
