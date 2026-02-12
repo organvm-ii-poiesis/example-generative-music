@@ -1,4 +1,4 @@
-name: Minimal CI
+name: CI
 
 on:
   push:
@@ -10,14 +10,34 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Run unit tests
+        run: npm test
 
       - name: Validate structure
         run: |
           echo "Repository structure:"
           ls -la
+          echo ""
+          echo "Source modules:"
+          ls -la src/server/
+          echo ""
+          echo "Test files:"
+          ls -la tests/
           echo ""
           echo "README check:"
           if [ -f "README.md" ]; then
@@ -34,5 +54,11 @@ jobs:
             echo "::warning::No license file found"
           fi
 
+      - name: CLI smoke test
+        run: |
+          node src/cli.js --help
+          node src/cli.js generate --scale pentatonic --length 8
+          node src/cli.js demo
+
       - name: Success
-        run: echo "::notice::Minimal CI validation passed"
+        run: echo "::notice::CI validation passed — all tests green"
