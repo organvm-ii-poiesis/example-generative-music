@@ -1,0 +1,7 @@
+schema_version: '1.0'
+repo: example-generative-music
+organ: II
+display_name: Generative music example
+delivery:
+- platform: web_app
+  status: not_started
